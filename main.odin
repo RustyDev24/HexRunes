@@ -18,14 +18,7 @@ main :: proc() {
         }
         os.exit(1)
     }
-    
-    for line in lines {
-        length, address, rec_type, data, checksum, err := assembly.parse_record(line)
-        if err != nil {
-            continue
-        }
 
-        fmt.printf("length=%d, address=%d, record_type=%d, data=%v, checksum=%d\n",
-            length, address, rec_type, data, checksum)
-    }
+    controller.load_code(&myController, lines)
+    fmt.printf("%v\n", myController.rom[0x0020])
 }

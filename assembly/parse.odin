@@ -11,11 +11,11 @@ ParseError :: union {
 InvalidRecord :: struct {
 }
 
-parse_record :: proc( line: string) -> (
+parse_record :: proc(line: string) -> (
     length: u8,
     address: u16,
     record_type: u8,
-    data: []string,
+    data: []u8,
     checksum: u8,
     err: ParseError
 ) {
@@ -29,9 +29,9 @@ parse_record :: proc( line: string) -> (
     address = u16(hex_to_uint(line[3:7]))
     record_type = u8(hex_to_uint(line[7:9]))
 
-    data = make([]string, length)
+    data = make([]u8, length)
     for i := 0; i < int(length); i += 1 {
-        data[i] = string(line[9 + i*2 : 11 + i*2])
+        data[i] = u8(hex_to_uint(string(line[9 + i*2 : 11 + i*2])))
     }
 
     checksum = u8(hex_to_uint(string(line[9 + length*2 : 11 + length*2])))
