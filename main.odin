@@ -20,5 +20,10 @@ main :: proc() {
     }
 
     controller.load_code(&myController, lines)
-    fmt.printf("%v\n", myController.rom[0x0020])
+    fmt.printf("%v\n", myController.last_address)
+    for myController.pc <= myController.last_address {
+      controller.exec_instruction(&myController)
+    }
+
+    fmt.printf("%v\n", myController)
 }
