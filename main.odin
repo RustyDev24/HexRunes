@@ -6,8 +6,8 @@ import "controller"
 import "assembly"
 
 main :: proc() {
-    myController := controller.NewController()
-    myController.memory[7] = 10
+    my_controller := controller.NewController()
+    my_controller.memory[7] = 10
     lines, error := assembly.load_file("testing/test.ihx")
     if error != nil {
         switch err in error {
@@ -19,11 +19,13 @@ main :: proc() {
         os.exit(1)
     }
 
-    controller.load_code(&myController, lines)
-    fmt.printf("%v\n", myController.last_address)
-    for myController.pc <= myController.last_address {
-      controller.exec_instruction(&myController)
+    controller.load_code(&my_controller, lines)
+    fmt.printf("%v\n", my_controller.last_address)
+    for my_controller.pc <= my_controller.last_address {
+      // controller.exec_instruction(&my_controller)
+      // fmt.printf("A: %08b\n", my_controller.A)
+      // fmt.printf("0x20: %08b\n", my_controller.memory[0x20])
+      fmt.printf("%02x\n", my_controller.rom[my_controller.pc])
+      my_controller.pc += 1
     }
-
-    fmt.printf("%v\n", myController)
 }

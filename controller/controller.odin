@@ -3,7 +3,7 @@ package controller
 import assembly "../assembly"
 
 Controller :: struct {
-    memory: [128]u8,
+    memory: [256]u8,
     rom: [4096]u8,
     psw: u8,
     tcon: u8,
@@ -44,7 +44,7 @@ load_code :: proc(controller: ^Controller, code: [dynamic]string) {
 NewController :: proc() -> Controller {
   return Controller{
     sp = 0x07,
-    pc = 0x0020,
+    pc = 0x0000,
     last_address = 0x0000,
   }
 }

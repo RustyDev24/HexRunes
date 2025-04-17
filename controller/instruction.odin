@@ -1,52 +1,121 @@
 package controller
 
+import "core:fmt"
+
 exec_instruction :: proc(controller: ^Controller) {
     inst := controller.rom[controller.pc]
     switch (inst) {
     case 0:
+      fmt.println("executing NOP")
       controller.pc += 1
+    
+    // AJMP
     case 1:
+      target_addr := controller.rom[controller.pc + 1]
+      controller.pc =  (controller.pc + 2) & 0xF800
     case 2:
+
+    // RR A
     case 3:
+      fmt.println("executing RR")
+      controller.pc += 1
+      controller.A = (controller.A >> 1) | (controller.A << 7)
+
+    // INC A
     case 4:
       controller.A += 1
       controller.pc += 1
-    case 5:
-    case 6:
-    case 7:
 
-// INC Rx
+    // INC (direct)
+    case 5:
+      controller.memory[controller.rom[controller.pc + 1]] += 1
+      controller.pc += 2
+
+    // INC @Ri
+    case 6, 7:
+      index := inst - 6
+      controller.memory[controller.memory[index]] += 1
+      controller.pc += 1
+
+    // INC Rx
     case 8..=15:
       index := inst - 8
       controller.memory[index] += 1
       controller.pc += 1
 
+    // TODO: JBC
     case 16:
+
     case 17:
+
     case 18:
+
+    // RRC A
     case 19:
+      fmt.println("executing RRC")
+      controller.pc += 1
+      carry := (controller.psw >> 7) & 0x01
+      controller.psw = (controller.psw & 0x7F) | ((controller.A & 0x01) << 7)
+      controller.A = (controller.A >> 1) | (carry << 7)
+    
+    // DEC A
     case 20:
       controller.A -= 1
       controller.pc += 1
-    case 21:
-    case 22:
-    case 23:
 
+    // DEC (direct)
+    case 21:
+      controller.memory[controller.rom[controller.pc + 1]] -= 1
+      controller.pc += 2
+
+    // DEC @Ri
+    case 22, 23:
+      index := inst - 22
+      controller.memory[controller.memory[index]] -= 1
+      controller.pc += 1
+
+    // DEC Rx
     case 24..=31:
       index := inst - 24
       controller.memory[index] -= 1
       controller.pc += 1
 
+    // TODO: JB
     case 32:
-    case 33:
-    case 34:
-    case 35:
-    case 36:
-    case 37:
-    case 38:
-    case 39:
 
-// ADD A, Rx
+    // TODO: AJMP
+    case 33:
+
+    // RET
+    case 34:
+      pch := controller.memory[controller.sp]
+      controller.sp -= 1
+      controller.pc = (u16(pch) << 8) | u16(controller.memory[controller.sp])
+      controller.sp -= 1
+
+    // RL A
+    case 35:
+      fmt.println("executing RL")
+      controller.pc += 1
+      controller.A = (controller.A << 1) | (controller.A >> 7)
+
+    // ADD A, #immed
+    case 36:
+      controller.A += controller.memory[controller.pc + 1]
+      controller.pc += 2
+
+    // ADD A, (direct)  
+    case 37:
+      controller.A += controller.memory[controller.rom[controller.pc + 1]]
+      controller.pc +=2
+
+    // ADD A, @Ri
+    case 38, 39:
+      index := inst - 38
+      controller.A += controller.memory[controller.memory[index]]
+      controller.pc += 1
+
+    // ADD A, Rx
     case 40..=47:
       index := inst - 40
       controller.A += controller.memory[index]
@@ -123,36 +192,23 @@ exec_instruction :: proc(controller: ^Controller) {
     case 116:
       controller.A = controller.rom[controller.pc + 1]
       controller.pc += 2
-    case 117:
-    case 118:
-    case 119:
 
-// MOV Rx, #immed
+    // MOV (direct), #immed  
+    case 117:
+      controller.memory[controller.rom[controller.pc + 1]] = controller.rom[controller.pc + 1]
+      controller.pc += 3
+
+    // MOV @Ri, #immed
+    case 118, 119:
+      index := inst - 118
+      controller.memory[controller.memory[index]] = controller.rom[controller.pc + 1]
+      controller.pc += 2
+
+    // MOV Rx, #immed
     case 120..=127:
       index := inst - 120
       controller.memory[index] = controller.rom[controller.pc + 1] 
       controller.pc += 2
-    // case 121:
-    //   controller.memory[Register.R1] = controller.rom[controller.pc + 1] 
-    //   controller.pc += 2
-    // case 122:
-    //   controller.memory[Register.R2] = controller.rom[controller.pc + 1] 
-    //   controller.pc += 2
-    // case 123:
-    //   controller.memory[Register.R3] = controller.rom[controller.pc + 1] 
-    //   controller.pc += 2
-    // case 124:
-    //   controller.memory[Register.R4] = controller.rom[controller.pc + 1] 
-    //   controller.pc += 2
-    // case 125:
-    //   controller.memory[Register.R5] = controller.rom[controller.pc + 1] 
-    //   controller.pc += 2
-    // case 126:
-    //   controller.memory[Register.R6] = controller.rom[controller.pc + 1] 
-    //   controller.pc += 2
-    // case 127:
-    //   controller.memory[Register.R7] = controller.rom[controller.pc + 1] 
-    //   controller.pc += 2
 
     case 128:
     case 129:
