@@ -20,12 +20,11 @@ main :: proc() {
     }
 
     controller.load_code(&my_controller, lines)
-    fmt.printf("%v\n", my_controller.last_address)
+    fmt.printf("%08b\n", my_controller.memory[0x25])
+    fmt.printf("%08b\n", my_controller.psw)
     for my_controller.pc <= my_controller.last_address {
-      // controller.exec_instruction(&my_controller)
-      // fmt.printf("A: %08b\n", my_controller.A)
-      // fmt.printf("0x20: %08b\n", my_controller.memory[0x20])
-      fmt.printf("%02x\n", my_controller.rom[my_controller.pc])
-      my_controller.pc += 1
+      controller.exec_instruction(&my_controller)
     }
+    fmt.printf("%08b\n", my_controller.memory[0x25])
+    fmt.printf("%08b\n", my_controller.psw)
 }

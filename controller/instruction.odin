@@ -9,10 +9,12 @@ exec_instruction :: proc(controller: ^Controller) {
       fmt.println("executing NOP")
       controller.pc += 1
     
-    // AJMP
+    // TODO: AJMP
     case 1:
       target_addr := controller.rom[controller.pc + 1]
       controller.pc =  (controller.pc + 2) & 0xF800
+    
+    // TODO: LJMP
     case 2:
 
     // RR A
@@ -210,26 +212,57 @@ exec_instruction :: proc(controller: ^Controller) {
       controller.memory[index] = controller.rom[controller.pc + 1] 
       controller.pc += 2
 
+    // SJMP
     case 128:
+    // AJMP
     case 129:
+
+    // ANL C, bit
     case 130:
+
+    // MOVC A, @A + PC
     case 131:
+      controller.pc += 1
+      controller.A = controller.rom[u16(controller.A) + controller.pc]
+
+    // DIV AB
     case 132:
+
+    // MOV (dest_direct), (src_direct)
     case 133:
-    case 134:
-    case 135:
-    case 136:
-    case 137:
-    case 138:
-    case 139:
-    case 140:
-    case 141:
-    case 142:
-    case 143:
+      controller.memory[controller.rom[controller.pc + 2]] = 
+        controller.memory[controller.rom[controller.pc + 1]]
+      controller.pc += 3
+
+    // MOV (direct), @Ri
+    case 134, 135:
+      index := inst - 134
+      controller.memory[controller.rom[controller.pc + 1]] = controller.memory[controller.memory[index]]
+      controller.pc += 2
+    
+    // MOV (direct), Rx
+    case 136..=143:
+      index := inst - 134
+      controller.memory[controller.rom[controller.pc + 1]] = controller.memory[index]
+      controller.pc += 2
+
+    // MOV DPTR, #immed
     case 144:
+      controller.dptr = u16((controller.rom[controller.pc + 1] << 8) | (controller.rom[controller.pc + 2]))
+      controller.pc += 3
+
+    // ACALL
     case 145:
+
+    // MOV (bit), C
     case 146:
+
+    // MOVC A, @A+DPTR
     case 147:
+      controller.A = controller.rom[u16(controller.A) + controller.dptr]
+      controller.pc += 1
+
+    // SUBB
     case 148:
     case 149:
     case 150:
@@ -292,8 +325,22 @@ exec_instruction :: proc(controller: ^Controller) {
     case 207:
     case 208:
     case 209:
+
+    // SETB (bit)
     case 210:
+      bit := controller.rom[controller.pc + 1]
+      addr := u8(bit / 0x08)
+      offset := bit % 0x08
+
+      controller.memory[0x20 + addr] |= (1 << offset)
+      controller.pc += 2
+
+    // SETB C
     case 211:
+      controller.psw |= (1 << 7)
+      controller.pc += 1
+
+    // DA A      
     case 212:
     case 213:
     case 214:
